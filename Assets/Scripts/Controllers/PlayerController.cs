@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour
     private CoreMovement _coreMovement;
     private GravityHandler _gravityHandler;
     private InputHandler _inputHandler;
+    private IInputActions _inputActions;
     private TimerHandler _timerHandler;
 
     // Property to access GravityHandler
@@ -55,8 +57,22 @@ public class PlayerController : MonoBehaviour
         _collisionHandler = new CollisionHandler(this, groundCheckPoint, groundCheckSize, frontWallCheckPoint, backWallCheckPoint, wallCheckSize, groundLayer);
         _coreMovement = new CoreMovement(this);
         _gravityHandler = new GravityHandler(this, _coreMovement);
-        _inputHandler = new InputHandler(this);
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        _inputActions = new UnityInputActions(playerInput);
+        _inputHandler = new InputHandler(this, _inputActions);
         _timerHandler = new TimerHandler(this);
+    }
+
+    
+    private void OnEnable() {
+        //Enable input actions when the PlayerController is enabled
+        (_inputActions as UnityInputActions)?.Enable();
+    }
+
+    private void OnDisable() 
+    {
+        //Disable input actions when the PlayerController is disabled
+        (_inputActions as UnityInputActions)?.Disable();
     }
 
     private void Start()
@@ -64,6 +80,9 @@ public class PlayerController : MonoBehaviour
         _gravityHandler.SetGravityScale(Data.gravityScale);
         IsFacingRight = true;
     }
+
+    
+    
 
     private void Update()
     {
