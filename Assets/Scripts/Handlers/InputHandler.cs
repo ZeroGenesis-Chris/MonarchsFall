@@ -80,9 +80,16 @@ public class InputHandler
     /// </summary>
     private void OnJumpCanceled()
     {
+<<<<<<< HEAD
         if (_controller.CanJumpCut() || _controller.CanWallJumpCut())
         {
             _controller.RB.AddForce(Vector2.down * _controller.RB.velocity.y * (1 - _controller.Data.jumpCutGravityMult), ForceMode2D.Impulse);
+=======
+       if (_controller.CanJumpCut() || _controller.CanWallJumpCut())
+        {
+        
+            _controller.RB.AddForce(Vector2.down * _controller.RB.velocity.y * _controller.Data.jumpCutGravityMult, ForceMode2D.Impulse);
+>>>>>>> master
         }
     }
 
