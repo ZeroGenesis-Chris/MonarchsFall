@@ -21,27 +21,41 @@ public class HealthSystem : MonoBehaviour
 
    public void TakeDamage(float damageAmount)
    {
+     // Prevent taking damage if the object is already dead
      if (isDead) return;
 
+     // Subtract the damage amount from the current health amount
      currentHealth -= damageAmount;
+
+     // Clamp the current health to ensure it is not less than 0f or more than the maxHealth
      currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
 
+     // Raise the OnHealthChanged UnityEvent with the current health percentage
      OnHealthChanged?.Invoke(currentHealth / maxHealth);
 
+     // If the current health is 0f or less, die
      if (currentHealth <= 0f)
      {
+        // Die and raise the OnDeath UnityEvent
         Die();
      }
    }
 
+
+
    public void Heal(float healAmount)
    {
-    if (isDead) return;
+     // Prevent healing if the object is already dead
+     if (isDead) return;
 
-    currentHealth += healAmount;
-    currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+     // Add the heal amount to the current health amount
+     currentHealth += healAmount;
 
-    OnHealthChanged?.Invoke(currentHealth / maxHealth);
+     // Ensure the current health is not more than the maxHealth
+     currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+
+     // Raise the OnHealthChanged UnityEvent with the current health percentage
+     OnHealthChanged?.Invoke(currentHealth / maxHealth);
    }
 
     private void Die()

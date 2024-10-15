@@ -21,7 +21,6 @@ public class PlayerAttack : MonoBehaviour
 
     //Systems Import
     private DamageSystem damageSystem;
-    private HealthSystem Health;
     private MeleeTargetingSystem meleeTargetingSystem;
     private RangeTargetSystem rangedTargetingSystem;
 
@@ -34,47 +33,72 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
+        // Check if the "Fire1" button has been pressed this frame
         if (Input.GetButtonDown("Fire1"))
         {
+            // If the equipped weapon is Melee, perform a melee attack
             if (equippedWeapon == WeaponType.Melee)
             {
                 MeleeAttack();
             }
+            // If the equipped weapon is Ranged, start charging a ranged attack
             else if (equippedWeapon == WeaponType.Ranged)
             {
                 StartChargingRangedAttack();
             }
         }
+
+        // Check if the equipped weapon is Ranged and the "Fire1" button has been released
         if (equippedWeapon == WeaponType.Ranged && Input.GetButtonUp("Fire1"))
         {
+            // Release the ranged attack with the current charge level
             ReleaseRangedAttack();
         }
     }
 
+
     void MeleeAttack()
     {
+        // Increment the current swing count
         currentSwingCount++;
 
+        // If the current swing count is less than the total number of swings before a critical hit
         if (currentSwingCount < meleeSwingCount)
         {
+            // Perform a normal melee attack
             PerformMeleeSwing(false);
         }
         else
         {
+            // Perform a critical melee attack
             PerformMeleeSwing(true);
-            currentSwingCount = 0; // Reset swing count
+
+            // Reset the swing count
+            currentSwingCount = 0;
         }
     }
 
+
     void PerformMeleeSwing(bool isCritical)
     {
+        // Get a target from the melee targeting system
         GameObject target = meleeTargetingSystem.GetMeleeTarget();
+
+        // If a target is found
         if (target != null)
         {
+            // Calculate the damage multiplier for the attack
+            // If the attack is a critical hit, the damage multiplier is 2
+            // Otherwise, the damage multiplier is 1
             float damageMultiplier = isCritical ? 2f : 1f;
+
+            // Deal damage to the target using the damage system
+            // The weapon type is Melee, the attack is critical if isCritical is true,
+            // the target is the target we just found, and the damage multiplier is the value we calculated
             damageSystem.DealDamage(WeaponType.Melee, isCritical, target, damageMultiplier);
         }
     }
+
 
     void StartChargingRangedAttack()
     {
@@ -97,6 +121,30 @@ public class PlayerAttack : MonoBehaviour
         PerformRangedAttack(chargeLevel);
         chargeTime = 0f; // Reset charge time
     }
+
+    void PerformRangedAttack(ChargeLevel chargeLevel)
+    {
+        // Get the target of the ranged attack
+        GameObject target = rangedTargetingSystem.GetRangedTarget();
+        if (target != null)
+        {
+            // Get the health system of the target
+            HealthSystem targetHealth = target.GetComponent<HealthSystem>();
+            if (targetHealth != null)
+            {
+                // Calculate the damage multiplier based on the charge level
+                float damageMultiplier = GetDamageMultiplier(chargeLevel);
+
+                // Perform the ranged attack
+                damageSystem.DealDamage(WeaponType.Ranged, chargeLevel == ChargeLevel.Critical, target, damageMultiplier);
+
+                // Instantiate projectile with charge level
+                // GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+                // projectile.GetComponent<Projectile>().Initialize(target.transform.position, chargeLevel);
+            }
+        }
+    }
+
     ChargeLevel GetChargeLevel()
     {
         if (chargeTime < lowChargeTime)
@@ -109,24 +157,6 @@ public class PlayerAttack : MonoBehaviour
             return ChargeLevel.High;
         else
             return ChargeLevel.Critical;
-    }
-
-   void PerformRangedAttack(ChargeLevel chargeLevel)
-    {
-        GameObject target = rangedTargetingSystem.GetRangedTarget();
-        if (target != null)
-        {
-            HealthSystem targetHealth = target.GetComponent<HealthSystem>();
-            if (targetHealth != null)
-            {
-                float damageMultiplier = GetDamageMultiplier(chargeLevel);
-                damageSystem.DealDamage(WeaponType.Ranged, chargeLevel == ChargeLevel.Critical, target, damageMultiplier);
-                
-                // Instantiate projectile with charge level
-                // GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-                // projectile.GetComponent<Projectile>().Initialize(target.transform.position, chargeLevel);
-            }
-        }
     }
 
     float GetDamageMultiplier(ChargeLevel chargeLevel)
