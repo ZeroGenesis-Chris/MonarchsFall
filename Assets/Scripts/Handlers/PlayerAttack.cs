@@ -24,6 +24,8 @@ public class PlayerAttack : MonoBehaviour
     private MeleeTargetingSystem meleeTargetingSystem;
     private RangeTargetSystem rangedTargetingSystem;
 
+    private GameObject projectilePrefab;
+
     void Start()
     {
         damageSystem = GetComponent<DamageSystem>();
@@ -132,15 +134,16 @@ public class PlayerAttack : MonoBehaviour
             HealthSystem targetHealth = target.GetComponent<HealthSystem>();
             if (targetHealth != null)
             {
-                // Calculate the damage multiplier based on the charge level
+                // Instantiate the ranged attack prefab
+                GameObject projectileObject = Instantiate(projectilePrefab,transform.position,Quaternion.identity);
+                ProjectileSystem projectile = projectileObject.GetComponent<ProjectileSystem>();
+
+                // Initialize the projectile
+                projectile.Initialize(target.transform.position, chargeLevel);
+
+                // Deal damage to the target
                 float damageMultiplier = GetDamageMultiplier(chargeLevel);
-
-                // Perform the ranged attack
                 damageSystem.DealDamage(WeaponType.Ranged, chargeLevel == ChargeLevel.Critical, target, damageMultiplier);
-
-                // Instantiate projectile with charge level
-                // GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-                // projectile.GetComponent<Projectile>().Initialize(target.transform.position, chargeLevel);
             }
         }
     }

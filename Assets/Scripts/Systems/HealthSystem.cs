@@ -15,6 +15,8 @@ public class HealthSystem : MonoBehaviour
 
   public UnityEvent<float> OnHealthChanged;
   public UnityEvent OnDeath;
+   private float lastDamageTime = 0f;
+  private Coroutine regenCoroutine;
 
   private bool isDead = false;
 
@@ -66,22 +68,32 @@ public class HealthSystem : MonoBehaviour
     OnHealthChanged?.Invoke(currentHealth / maxHealth);
   }
 
-  private ienumerator RegenHealth()
+  // This coroutine handles the regeneration of health over time
+  private IEnumerator RegenHealth()
   {
+    // Wait until the regen cooldown period has passed since the last damage taken
     while (Time.time - lastDamageTime < regenCooldown)
     {
       yield return null;
     }
 
+    // Continue regenerating health as long as the current health is below the maximum and the object is not dead
     while (currentHealth < maxHealth && !isDead)
     {
+      // Increase the current health based on the regen amount over time
       currentHealth += regenAmount * Time.deltaTime;
+      
+      // Ensure the current health does not exceed the maximum health
       currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+      
+      // Update the health change event with the current health percentage
       OnHealthChanged?.Invoke(currentHealth / maxHealth);
 
       yield return null;
     }
-    regenCoroutine  = null;
+
+    // Reset the regenCoroutine when the regeneration is complete
+    regenCoroutine = null;
   }
 
   private void Die()
