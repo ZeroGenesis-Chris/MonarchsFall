@@ -1,11 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-<<<<<<< HEAD
-public class CoreMovement
-=======
 public class MovementHandler
->>>>>>> master
 {
     #region Variables
     private PlayerController _controller;
@@ -22,11 +18,7 @@ public class MovementHandler
     private int _lastWallJumpDir;
     #endregion
 
-<<<<<<< HEAD
-    public CoreMovement(PlayerController controller)
-=======
     public MovementHandler(PlayerController controller)
->>>>>>> master
     {
         _controller = controller;
         _dashesLeft = _data.dashAmount;
